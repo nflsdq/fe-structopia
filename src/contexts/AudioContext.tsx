@@ -25,19 +25,19 @@ interface AudioContextType {
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
-// Sound URLs
+// Sound URLs - these will be replaced with local files
 const SOUNDS: Record<SoundType, string> = {
-  click: 'https://assets.mixkit.co/sfx/preview/mixkit-simple-game-click-1114.mp3',
-  hover: 'https://assets.mixkit.co/sfx/preview/mixkit-tech-click-1140.mp3',
-  success: 'https://assets.mixkit.co/sfx/preview/mixkit-completion-of-a-level-2063.mp3',
-  error: 'https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3',
-  achievement: 'https://assets.mixkit.co/sfx/preview/mixkit-fairy-arcade-sparkle-866.mp3',
-  levelUp: 'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3',
-  xp: 'https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3',
-  buttonClick: 'https://assets.mixkit.co/sfx/preview/mixkit-interface-click-1126.mp3',
-  unlock: 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3',
-  complete: 'https://assets.mixkit.co/sfx/preview/mixkit-game-level-completed-2059.mp3',
-  background: 'https://assets.mixkit.co/sfx/preview/mixkit-game-level-music-689.mp3',
+  click: '/sounds/click.mp3',
+  hover: '/sounds/hover.mp3',
+  success: '/sounds/success.mp3',
+  error: '/sounds/error.mp3',
+  achievement: '/sounds/achievement.mp3',
+  levelUp: '/sounds/levelUp.mp3',
+  xp: '/sounds/xp.mp3',
+  buttonClick: '/sounds/buttonClick.mp3',
+  unlock: '/sounds/unlock.mp3',
+  complete: '/sounds/complete.mp3',
+  background: '/sounds/background.mp3',
 };
 
 interface SoundInstanceMap {
