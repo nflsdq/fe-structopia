@@ -6,6 +6,7 @@ import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './contexts/AuthContext';
 import { GameProvider } from './contexts/GameContext';
 import { AudioProvider } from './contexts/AudioContext';
+import useAudio from './hooks/useAudio';
 
 // Components
 import LoadingScreen from './components/common/LoadingScreen';

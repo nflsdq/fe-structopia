@@ -1,5 +1,16 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Howl } from 'howler';
+import click from '../components/music/click.mp3';
+import hover from '../components/music/hover.mp3';
+import success from '../components/music/success.mp3';
+import error from '../components/music/error.mp3';
+import achievement from '../components/music/achievement.mp3';
+import levelUp from '../components/music/levelUp.mp3';
+import xp from '../components/music/xp.mp3';
+import buttonClick from '../components/music/buttonClick.mp3';
+import unlock from '../components/music/unlock.mp3';
+import complete from '../components/music/complete.mp3';
+import background from '../components/music/background.mp3';
 
 type SoundType = 
   | 'click' 
@@ -15,29 +26,30 @@ type SoundType =
   | 'background';
 
 interface AudioContextType {
-  isMuted: boolean;
-  toggleMute: () => void;
   playSound: (sound: SoundType) => void;
   stopSound: (sound: SoundType) => void;
   setVolume: (volume: number) => void;
   volume: number;
+  isBackgroundPlaying: boolean;
+  playBackgroundMusic: () => void;
+  stopBackgroundMusic: () => void;
 }
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
 // Sound URLs
 const SOUNDS: Record<SoundType, string> = {
-  click: 'https://assets.mixkit.co/sfx/preview/mixkit-simple-game-click-1114.mp3',
-  hover: 'https://assets.mixkit.co/sfx/preview/mixkit-tech-click-1140.mp3',
-  success: 'https://assets.mixkit.co/sfx/preview/mixkit-completion-of-a-level-2063.mp3',
-  error: 'https://assets.mixkit.co/sfx/preview/mixkit-game-show-wrong-answer-buzz-950.mp3',
-  achievement: 'https://assets.mixkit.co/sfx/preview/mixkit-fairy-arcade-sparkle-866.mp3',
-  levelUp: 'https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3',
-  xp: 'https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3',
-  buttonClick: 'https://assets.mixkit.co/sfx/preview/mixkit-interface-click-1126.mp3',
-  unlock: 'https://assets.mixkit.co/sfx/preview/mixkit-unlock-game-notification-253.mp3',
-  complete: 'https://assets.mixkit.co/sfx/preview/mixkit-game-level-completed-2059.mp3',
-  background: 'https://assets.mixkit.co/sfx/preview/mixkit-game-level-music-689.mp3',
+  click: click,
+  hover: hover,
+  success: success,
+  error: error,
+  achievement: achievement,
+  levelUp: levelUp,
+  xp: xp,
+  buttonClick: buttonClick,
+  unlock: unlock,
+  complete: complete,
+  background: background,
 };
 
 interface SoundInstanceMap {
@@ -45,40 +57,36 @@ interface SoundInstanceMap {
 }
 
 export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isMuted, setIsMuted] = useState<boolean>(localStorage.getItem('isMuted') === 'true');
   const [volume, setVolume] = useState<number>(Number(localStorage.getItem('volume') || 0.5));
   const [soundInstances, setSoundInstances] = useState<SoundInstanceMap>({});
-  
+  const [isBackgroundPlaying, setIsBackgroundPlaying] = useState<boolean>(false);
+
   // Initialize sounds
   useEffect(() => {
     const instances: SoundInstanceMap = {};
-    
     Object.entries(SOUNDS).forEach(([key, url]) => {
-      instances[key] = new Howl({
+      const howl = new Howl({
         src: [url],
         volume: volume,
-        mute: isMuted,
+        mute: false,
         html5: true,
-        preload: key === 'background', // Only preload essential sounds
+        preload: true,
+        loop: key === 'background',
       });
+      instances[key] = howl;
     });
-    
     setSoundInstances(instances);
-    
-    // Cleanup
+    // Pastikan semua sound effect tidak mute
+    Object.entries(instances).forEach(([key, howl]) => {
+      if (key !== 'background') {
+        howl.mute(false);
+      }
+    });
     return () => {
       Object.values(instances).forEach(sound => sound.unload());
     };
   }, []);
-  
-  // Update mute state when changed
-  useEffect(() => {
-    localStorage.setItem('isMuted', isMuted.toString());
-    Object.values(soundInstances).forEach(sound => {
-      sound.mute(isMuted);
-    });
-  }, [isMuted, soundInstances]);
-  
+
   // Update volume when changed
   useEffect(() => {
     localStorage.setItem('volume', volume.toString());
@@ -86,44 +94,73 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       sound.volume(volume);
     });
   }, [volume, soundInstances]);
-  
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-  };
-  
-  const playSound = (sound: SoundType) => {
-    if (soundInstances[sound]) {
-      // Stop the sound first to allow rapid re-triggering
-      soundInstances[sound].stop();
-      
-      // For background music, loop it
-      if (sound === 'background') {
-        soundInstances[sound].loop(true);
+
+  // Play/pause background music sesuai state
+  useEffect(() => {
+    if (soundInstances.background) {
+      if (isBackgroundPlaying) {
+        if (!soundInstances.background.playing()) {
+          soundInstances.background.play();
+        }
+      } else {
+        soundInstances.background.pause();
       }
-      
+    }
+  }, [isBackgroundPlaying, soundInstances]);
+
+  const playSound = (sound: SoundType) => {
+    if (sound === 'background') {
+      playBackgroundMusic();
+      return;
+    }
+    if (soundInstances[sound]) {
+      soundInstances[sound].stop();
       soundInstances[sound].play();
     }
   };
-  
+
   const stopSound = (sound: SoundType) => {
+    if (sound === 'background') {
+      stopBackgroundMusic();
+      return;
+    }
     if (soundInstances[sound]) {
       soundInstances[sound].stop();
     }
   };
-  
-  const updateVolume = (newVolume: number) => {
-    setVolume(Math.min(Math.max(newVolume, 0), 1)); // Ensure volume is between 0 and 1
+
+  const playBackgroundMusic = () => {
+    if (soundInstances.background) {
+      if (!soundInstances.background.playing()) {
+        soundInstances.background.play();
+      }
+      setIsBackgroundPlaying(true);
+      localStorage.setItem('isBackgroundPlaying', 'true');
+    }
   };
-  
+
+  const stopBackgroundMusic = () => {
+    if (soundInstances.background) {
+      soundInstances.background.pause();
+      setIsBackgroundPlaying(false);
+      localStorage.setItem('isBackgroundPlaying', 'false');
+    }
+  };
+
+  const updateVolume = (newVolume: number) => {
+    setVolume(Math.min(Math.max(newVolume, 0), 1));
+  };
+
   return (
     <AudioContext.Provider
       value={{
-        isMuted,
-        toggleMute,
         playSound,
         stopSound,
         setVolume: updateVolume,
         volume,
+        isBackgroundPlaying,
+        playBackgroundMusic,
+        stopBackgroundMusic,
       }}
     >
       {children}

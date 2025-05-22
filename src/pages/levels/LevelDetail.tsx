@@ -9,14 +9,17 @@ import { useGame } from '../../contexts/GameContext';
 import { Level, Material, MaterialType } from '../../types';
 import levelService from '../../services/levelService';
 import quizService from '../../services/quizService';
+import materialService from '../../services/materialService';
 import useAudio from '../../hooks/useAudio';
 import GameButton from '../../components/common/GameButton';
+import { useAuth } from '../../contexts/AuthContext';
 
 const LevelDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const { levels, loadLevels } = useGame();
+  const { levels, loadLevels, loadUserProgress, checkNewBadges } = useGame();
   const navigate = useNavigate();
   const { playSound } = useAudio();
+  const { refreshUser } = useAuth();
   
   const [level, setLevel] = useState<Level | null>(null);
   const [materials, setMaterials] = useState<Material[]>([]);
@@ -25,6 +28,7 @@ const LevelDetail: React.FC = () => {
   const [isQuizAccessible, setIsQuizAccessible] = useState(false);
   const [isLoadingQuizAccess, setIsLoadingQuizAccess] = useState(true);
   const [quizAccessMessage, setQuizAccessMessage] = useState<string | null>(null);
+  const [completingMaterialId, setCompletingMaterialId] = useState<number | null>(null);
   
   useEffect(() => {
     const fetchLevelData = async () => {
@@ -115,6 +119,55 @@ const LevelDetail: React.FC = () => {
     checkQuizApiAvailability();
 
   }, [level, materials, isLoading]);
+
+  const handleCompleteMaterial = async (material: Material) => {
+    if (!material || material.is_completed || completingMaterialId === material.id) return;
+    
+    setCompletingMaterialId(material.id);
+    try {
+      const response = await materialService.completeMaterial(material.id);
+      playSound('success');
+      
+      if (refreshUser) {
+        await refreshUser();
+      }
+      await checkNewBadges();
+      
+      await loadUserProgress();
+      await loadLevels();
+      
+      // Update local material state
+      setMaterials(prevMaterials => 
+        prevMaterials.map(m => 
+          m.id === material.id ? { ...m, is_completed: true } : m
+        )
+      );
+
+      if (response.xp_gained > 0) {
+        console.log(`Anda mendapatkan ${response.xp_gained} XP!`);
+      }
+      if (response.new_badges && response.new_badges.length > 0) {
+        console.log(`Badge baru diperoleh: ${response.new_badges.map(b => b.name).join(', ')}`);
+      }
+
+    } catch (error) {
+      console.error('Error completing material:', error);
+      playSound('error');
+    } finally {
+      setCompletingMaterialId(null);
+    }
+  };
+  
+  const handleDownloadAndComplete = (material: Material) => {
+    // Buka tautan di tab baru
+    window.open(material.media_url, '_blank');
+    playSound('click');
+    
+    // Tandai materi sebagai selesai jika belum selesai
+    if (!material.is_completed) {
+      handleCompleteMaterial(material);
+    }
+  };
   
   const handleTabChange = (tab: MaterialType | 'all') => {
     setActiveTab(tab);
@@ -330,14 +383,12 @@ const LevelDetail: React.FC = () => {
                     <GameButton
                         variant="secondary"
                         size="sm"
-                        onClick={() => {
-                          playSound('click');
-                          window.open(material.media_url, '_blank');
-                        }}
+                        onClick={() => handleDownloadAndComplete(material)}
                         className="mt-4"
                         icon={<Download size={16} />}
+                        disabled={completingMaterialId === material.id}
                       >
-                        Unduh File
+                        {completingMaterialId === material.id ? 'Memproses...' : 'Unduh File'}
                       </GameButton>
                   </div>
                   <div className="flex-shrink-0 ml-4">

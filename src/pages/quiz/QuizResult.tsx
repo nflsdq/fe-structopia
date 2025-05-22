@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link, useParams, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Trophy, Star, ArrowLeft, Home } from 'lucide-react';
@@ -6,6 +6,7 @@ import Confetti from 'react-confetti';
 import { QuizResult as QuizResultType } from '../../types';
 import useAudio from '../../hooks/useAudio';
 import GameButton from '../../components/common/GameButton';
+import { toast } from 'react-toastify';
 
 const QuizResult: React.FC = () => {
   const { quizId: levelId } = useParams<{ quizId: string }>();
@@ -14,17 +15,26 @@ const QuizResult: React.FC = () => {
   const { playSound } = useAudio();
   
   const result = location.state?.result as QuizResultType;
+  const badgeToastShown = useRef(false);
   
   useEffect(() => {
-    // If no result in state, redirect to levels
     if (!result) {
       navigate('/levels');
       return;
     }
     
-    // Play success sound if passed
     if (result.passed) {
       playSound('levelUp');
+      if (result.xp_gained > 0) {
+        toast.success(`Anda mendapatkan ${result.xp_gained} XP!`);
+      }
+      // Tampilkan toast badge hanya sekali
+      if (!badgeToastShown.current && result.new_badges && result.new_badges.length > 0) {
+        toast.success(`Badge baru diperoleh: ${result.new_badges.map(b => b.name).join(', ')}`);
+        badgeToastShown.current = true;
+      }
+    } else {
+      toast.info('Jangan menyerah! Terus berlatih dan coba lagi.');
     }
   }, [result, navigate, playSound]);
   

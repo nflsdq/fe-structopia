@@ -11,7 +11,7 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
   const { user, logout } = useAuth();
-  const { isMuted, toggleMute, playSound } = useAudio();
+  const { isBackgroundPlaying, playBackgroundMusic, stopBackgroundMusic } = useAudio();
   const [showUserMenu, setShowUserMenu] = useState(false);
   
   // Close user menu when clicking outside
@@ -33,14 +33,17 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
     await logout();
   };
   
-  const handleToggleMute = () => {
-    toggleMute();
-    playSound('click');
+  // Hanya kontrol background music
+  const handleToggleBackgroundMusic = () => {
+    if (isBackgroundPlaying) {
+      stopBackgroundMusic();
+    } else {
+      playBackgroundMusic();
+    }
   };
   
   const handleUserMenuToggle = () => {
     setShowUserMenu(!showUserMenu);
-    playSound('click');
   };
   
   return (
@@ -59,7 +62,6 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
             <Link 
               to="/dashboard" 
               className="flex items-center space-x-2"
-              onClick={() => playSound('click')}
             >
               <motion.div
                 className="w-10 h-10 bg-primary-500 rounded-lg flex items-center justify-center"
@@ -105,13 +107,13 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
           
           {/* Right side - User profile and sound control */}
           <div className="flex items-center space-x-4">
-            {/* Sound toggle */}
+            {/* Sound toggle hanya untuk background music */}
             <button 
               className="p-2 rounded-full hover:bg-neutral-800 text-primary-300 hover:text-primary-400"
-              onClick={handleToggleMute}
-              title={isMuted ? "Aktifkan Suara" : "Matikan Suara"}
+              onClick={handleToggleBackgroundMusic}
+              title={isBackgroundPlaying ? "Matikan Musik Latar" : "Aktifkan Musik Latar"}
             >
-              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+              {isBackgroundPlaying ? <Volume2 size={20} /> : <VolumeX size={20} />}
             </button>
             
             {/* User profile */}
@@ -145,7 +147,6 @@ const Navbar: React.FC<NavbarProps> = ({ toggleSidebar }) => {
                         <Link 
                           to="/profile" 
                           className="flex items-center px-4 py-2 text-sm text-neutral-300 hover:bg-primary-900 hover:text-white"
-                          onClick={() => playSound('click')}
                         >
                           <User size={16} className="mr-2" />
                           Profil Saya

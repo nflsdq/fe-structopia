@@ -7,6 +7,15 @@ import quizService from '../../services/quizService';
 import useAudio from '../../hooks/useAudio';
 import GameButton from '../../components/common/GameButton';
 
+function shuffleArray<T>(array: T[]): T[] {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 const Quiz: React.FC = () => {
   const { levelId } = useParams<{ levelId: string }>();
   const navigate = useNavigate();
@@ -18,6 +27,7 @@ const Quiz: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState(60); // 60 seconds per question
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [choiceKeyMaps, setChoiceKeyMaps] = useState<Record<string, string[]>>({});
   
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -27,23 +37,32 @@ const Quiz: React.FC = () => {
       try {
         const quizDataFromApi = await quizService.getLevelQuizzes(parseInt(levelId!));
         
-        const processedQuizzes = quizDataFromApi.map(q => {
-          let finalChoicesArray: string[];
-          const choicesFromApi = q.choices as any; // Treat as any for flexible access
-
+        let processedQuizzes = quizDataFromApi.map(q => {
+          let finalChoicesArray: { key: string; text: string }[] = [];
+          let choiceKeys: string[] = [];
+          const choicesFromApi = q.choices;
           if (typeof choicesFromApi === 'object' && choicesFromApi !== null && !Array.isArray(choicesFromApi)) {
-            const sortedKeys = Object.keys(choicesFromApi).sort(); 
-            finalChoicesArray = sortedKeys.map(key => choicesFromApi[key]);
+            const sortedKeys = Object.keys(choicesFromApi).sort();
+            finalChoicesArray = sortedKeys.map(key => ({ key, text: choicesFromApi[key] }));
           } else if (Array.isArray(choicesFromApi)) {
-            finalChoicesArray = choicesFromApi;
+            finalChoicesArray = (choicesFromApi as string[]).map((text, idx) => ({ key: String.fromCharCode(65 + idx), text }));
           } else {
             finalChoicesArray = [];
           }
+          finalChoicesArray = shuffleArray(finalChoicesArray);
+          choiceKeys = finalChoicesArray.map(c => c.key);
           return {
             ...q,
-            choices: finalChoicesArray
+            choices: finalChoicesArray.map(c => c.text),
+            _choiceKeys: choiceKeys,
           };
         });
+        processedQuizzes = shuffleArray(processedQuizzes);
+        const keyMap: Record<string, string[]> = {};
+        processedQuizzes.forEach(q => {
+          keyMap[q.id] = q._choiceKeys;
+        });
+        setChoiceKeyMaps(keyMap);
         setQuizzes(processedQuizzes);
       } catch (error) {
         console.error('Error fetching quizzes:', error);
@@ -73,13 +92,15 @@ const Quiz: React.FC = () => {
     return () => clearInterval(timer);
   }, [currentIndex, isLoading, quizzes.length, navigate, handleNextQuestion]);
   
-  const handleAnswer = (choiceKey: string) => {
+  const handleAnswer = (choiceIndex: number) => {
     if (!quizzes[currentIndex]) return;
     
     playSound('click');
+    const quizId = quizzes[currentIndex].id;
+    const key = choiceKeyMaps[quizId]?.[choiceIndex];
     setAnswers((prev) => ({
       ...prev,
-      [quizzes[currentIndex].id]: choiceKey,
+      [quizId]: key,
     }));
   };
   
@@ -195,16 +216,16 @@ const Quiz: React.FC = () => {
           {currentQuiz.choices.map((optionText, index) => (
             <button
               key={index}
-              onClick={() => handleAnswer(String.fromCharCode(65 + index))}
+              onClick={() => handleAnswer(index)}
               className={`w-full p-4 rounded-lg text-left transition-all ${
-                answers[currentQuiz.id] === String.fromCharCode(65 + index)
+                answers[currentQuiz.id] === choiceKeyMaps[currentQuiz.id]?.[index]
                   ? 'bg-primary-900 border-2 border-primary-500 text-white'
                   : 'bg-neutral-800 border-2 border-neutral-700 text-neutral-300 hover:bg-neutral-700 hover:border-neutral-600'
               }`}
             >
               <div className="flex items-center">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center mr-3 ${
-                  answers[currentQuiz.id] === String.fromCharCode(65 + index)
+                  answers[currentQuiz.id] === choiceKeyMaps[currentQuiz.id]?.[index]
                     ? 'bg-primary-500 text-white'
                     : 'bg-neutral-700 text-neutral-400'
                 }`}>

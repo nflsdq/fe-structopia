@@ -8,6 +8,7 @@ import useAudio from '../../hooks/useAudio';
 import GameButton from '../../components/common/GameButton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useGame } from '../../contexts/GameContext';
+import { toast } from 'react-toastify';
 
 const MaterialDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,15 +57,16 @@ const MaterialDetail: React.FC = () => {
       await loadLevels();
 
       if (response.xp_gained > 0) {
-        console.log(`Anda mendapatkan ${response.xp_gained} XP!`);
+        toast.success(`Anda mendapatkan ${response.xp_gained} XP!`);
       }
       if (response.new_badges && response.new_badges.length > 0) {
-        console.log(`Badge baru diperoleh: ${response.new_badges.map(b => b.name).join(', ')}`);
+        toast.success(`Badge baru diperoleh: ${response.new_badges.map(b => b.name).join(', ')}`);
       }
 
     } catch (error) {
       console.error('Error completing material:', error);
       playSound('error');
+      toast.error('Gagal menyelesaikan materi.');
     } finally {
       setIsCompleting(false);
     }
@@ -85,6 +87,16 @@ const MaterialDetail: React.FC = () => {
       default:
         return <BookOpen size={24} className="text-primary-400" />;
     }
+  };
+  
+  // Tambahkan fungsi utilitas untuk deteksi dan konversi YouTube
+  const getYouTubeEmbedUrl = (url: string): string | null => {
+    // Regex untuk mendeteksi dan mengambil ID video YouTube
+    const regExp = /^.*(?:youtu.be\/|v=|embed\/|watch\?v=|watch\?.+&v=)([^#&?]*).*/;
+    const match = url.match(regExp);
+    return match && match[1].length === 11
+      ? `https://www.youtube.com/embed/${match[1]}`
+      : null;
   };
   
   if (isLoading) {
@@ -188,11 +200,31 @@ const MaterialDetail: React.FC = () => {
         {material.media_url && (
           <div className="mb-8">
             {material.type === 'visual' && (
-              <img 
-                src={material.media_url} 
-                alt={material.title}
-                className="w-full rounded-lg"
-              />
+              (() => {
+                const youtubeEmbed = getYouTubeEmbedUrl(material.media_url);
+                if (youtubeEmbed) {
+                  return (
+                    <div className="aspect-w-16 aspect-h-9">
+                      <iframe
+                        src={youtubeEmbed}
+                        width="100%"
+                        height="400"
+                        style={{ border: 'none' }}
+                        allowFullScreen
+                        title={material.title || 'YouTube Video'}
+                      ></iframe>
+                    </div>
+                  );
+                } else {
+                  return (
+                    <img
+                      src={material.media_url}
+                      alt={material.title}
+                      className="w-full rounded-lg"
+                    />
+                  );
+                }
+              })()
             )}
             
             {material.type === 'media' && (

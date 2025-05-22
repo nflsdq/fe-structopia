@@ -5,31 +5,28 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import useAudio from '../../hooks/useAudio';
+// import useAudio from '../../hooks/useAudio';
 
 const Layout: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
-  const { playSound } = useAudio();
+  // const { playSound } = useAudio();
   
   // Close sidebar when route changes
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
   
-  // Play background music when component mounts
-  useEffect(() => {
-    playSound('background');
-    
-    // Return cleanup function
-    return () => {
-      // Stop background music when component unmounts
-    };
-  }, []);
+  // Hapus pemanggilan playSound('background') di sini
+  // useEffect(() => {
+  //   playSound('background');
+  //   return () => {
+  //   };
+  // }, []);
   
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    playSound('click');
+    // playSound('click');
   };
   
   const pageVariants = {

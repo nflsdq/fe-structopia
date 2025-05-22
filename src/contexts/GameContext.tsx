@@ -5,6 +5,7 @@ import levelService from '../services/levelService';
 import progressService from '../services/progressService';
 import badgeService from '../services/badgeService';
 import useAudio from '../hooks/useAudio';
+import { toast } from 'react-toastify';
 
 interface GameContextType {
   levels: Level[];
@@ -103,6 +104,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await refreshUser();
       playSound('xp');
       
+      toast.success(`Anda mendapatkan ${amount} XP!`);
+    
       await checkNewBadges();
     } catch (error) {
       console.error('Failed to add XP', error);
