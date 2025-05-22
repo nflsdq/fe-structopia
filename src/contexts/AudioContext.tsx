@@ -37,7 +37,7 @@ interface AudioContextType {
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
-// Sound URLs
+// Sound URLs - these will be replaced with local files
 const SOUNDS: Record<SoundType, string> = {
   click: click,
   hover: hover,
