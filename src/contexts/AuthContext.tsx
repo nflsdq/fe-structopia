@@ -49,14 +49,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authService.login(credentials);
       setUser(response.user);
       playSound('success');
-      toast.success('Login berhasil! Selamat datang kembali.', {
-        icon: '🎮',
+      toast.success('🎮 Login berhasil! Selamat datang kembali.', {
       });
       navigate('/dashboard');
     } catch (error: any) {
       playSound('error');
-      toast.error(error.response?.data?.message || 'Login gagal. Silakan coba lagi.', {
-        icon: '❌',
+      toast.error(error.response?.data?.message || '❌ Login gagal. Silakan coba lagi.', {
       });
       throw error;
     } finally {
@@ -70,14 +68,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await authService.register(credentials);
       setUser(response.user);
       playSound('levelUp');
-      toast.success('Registrasi berhasil! Selamat datang di Structopia.', {
-        icon: '🎮',
+      toast.success('🎮 Registrasi berhasil! Selamat datang di Structopia.', {
       });
       navigate('/dashboard');
     } catch (error: any) {
       playSound('error');
-      toast.error(error.response?.data?.message || 'Registrasi gagal. Silakan coba lagi.', {
-        icon: '❌',
+      toast.error(error.response?.data?.message || '❌ Registrasi gagal. Silakan coba lagi.', {
       });
       throw error;
     } finally {
@@ -91,8 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await authService.logout();
       setUser(null);
       playSound('click');
-      toast.info('Anda telah keluar dari sistem.', {
-        icon: '👋',
+      toast.info('👋 Anda telah keluar dari sistem.', {
       });
       navigate('/');
     } catch (error) {

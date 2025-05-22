@@ -104,11 +104,11 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await refreshUser();
       playSound('xp');
       
-      toast.success(`Anda mendapatkan ${amount} XP!`);
+      toast.success(`⭐ Anda mendapatkan ${amount} XP!`);
     
       await checkNewBadges();
     } catch (error) {
-      console.error('Failed to add XP', error);
+      console.error('❌ Failed to add XP', error);
     }
   };
   

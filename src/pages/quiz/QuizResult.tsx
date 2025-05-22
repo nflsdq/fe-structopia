@@ -26,15 +26,15 @@ const QuizResult: React.FC = () => {
     if (result.passed) {
       playSound('levelUp');
       if (result.xp_gained > 0) {
-        toast.success(`Anda mendapatkan ${result.xp_gained} XP!`);
+        toast.success(`⭐ Anda mendapatkan ${result.xp_gained} XP!`);
       }
       // Tampilkan toast badge hanya sekali
       if (!badgeToastShown.current && result.new_badges && result.new_badges.length > 0) {
-        toast.success(`Badge baru diperoleh: ${result.new_badges.map(b => b.name).join(', ')}`);
+        toast.success(`🏆 Badge baru diperoleh: ${result.new_badges.map(b => b.name).join(', ')}`);
         badgeToastShown.current = true;
       }
     } else {
-      toast.info('Jangan menyerah! Terus berlatih dan coba lagi.');
+      toast.info('❌ Jangan menyerah! Terus berlatih dan coba lagi.');
     }
   }, [result, navigate, playSound]);
   
