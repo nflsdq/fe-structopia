@@ -22,7 +22,8 @@ const levelService = {
    * Get materials for a specific level
    */
   getLevelMaterials: async (levelId: number, type?: string): Promise<Material[]> => {
-    const query = type ? `?type=${type}` : '';
+    let query = `?per_page=25`;
+    if (type) query += `&type=${type}`;
     const response = await api.get<{ data: Material[] }>(`/levels/${levelId}/materi${query}`);
     return response.data.data;
   },

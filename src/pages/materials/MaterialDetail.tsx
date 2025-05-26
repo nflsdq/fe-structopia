@@ -260,7 +260,50 @@ const MaterialDetail: React.FC = () => {
         
         {/* Text content */}
         <div className="prose prose-invert max-w-none">
-          <div dangerouslySetInnerHTML={{ __html: material.content }} />
+          {material.type === 'visual' && material.meta ? (
+            <>
+              {Object.entries(material.meta).map(([key, value], idx) => {
+                // Deteksi gambar
+                if (typeof value === 'string' && value.match(/(https?:\/\/.*\.(?:png|jpg|jpeg|gif|svg))/i)) {
+                  return (
+                    <img key={idx} src={value} alt={key} className="my-4 rounded-lg w-1/2 mx-auto" />
+                  );
+                }
+                // Deteksi YouTube
+                if (typeof value === 'string' && (value.includes('youtu.be') || value.includes('youtube.com'))) {
+                  const regExp = /^.*(?:youtu.be\/|v=|embed\/|watch\?v=|watch\?.+&v=)([^#&?]*).*/;
+                  const match = value.match(regExp);
+                  const embedUrl = match && match[1].length === 11 ? `https://www.youtube.com/embed/${match[1]}` : null;
+                  if (embedUrl) {
+                    return (
+                      <div key={idx} className="aspect-w-16 aspect-h-9 my-4">
+                        <iframe
+                          src={embedUrl}
+                          width="100%"
+                          height="400"
+                          style={{ border: 'none' }}
+                          allowFullScreen
+                          title={material.title || 'YouTube Video'}
+                        ></iframe>
+                      </div>
+                    );
+                  }
+                }
+                // Judul
+                if (key.toLowerCase().includes('judul')) {
+                  return <h2 key={idx} className="text-2xl font-bold mt-6 mb-2">{value}</h2>;
+                }
+                // Paragraf
+                if (key.toLowerCase().includes('paragraf')) {
+                  return <p key={idx} className="mb-4 whitespace-pre-line text-justify">{value}</p>;
+                }
+                // Default
+                return <div key={idx}>{value}</div>;
+              })}
+            </>
+          ) : (
+            <div dangerouslySetInnerHTML={{ __html: material.content }} />
+          )}
         </div>
       </motion.div>
       
