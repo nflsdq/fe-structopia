@@ -6,7 +6,6 @@ import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './contexts/AuthContext';
 import { GameProvider } from './contexts/GameContext';
 import { AudioProvider } from './contexts/AudioContext';
-import useAudio from './hooks/useAudio';
 
 // Components
 import LoadingScreen from './components/common/LoadingScreen';
@@ -28,8 +27,8 @@ const Leaderboard = lazy(() => import('./pages/leaderboard/Leaderboard'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const StudentList = lazy(() => import('./pages/admin/StudentList'));
 const StudentDetail = lazy(() => import('./pages/admin/StudentDetail'));
-import TestPage from './pages/test/TestPage';
-import TestResultPage from './pages/test/TestResultPage';
+const TestPage = lazy(() => import('./pages/test/TestPage'));
+const TestResultPage = lazy(() => import('./pages/test/TestResultPage'));
 
 const App: React.FC = () => {
   const location = useLocation();

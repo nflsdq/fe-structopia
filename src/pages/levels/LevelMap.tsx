@@ -6,7 +6,6 @@ import { useGame } from '../../contexts/GameContext';
 import { Level } from '../../types';
 import useAudio from '../../hooks/useAudio';
 import GameButton from '../../components/common/GameButton';
-import authService from '../../services/authService';
 import testService from '../../services/testService';
 import progressService from '../../services/progressService';
 
@@ -91,9 +90,6 @@ const LevelMap: React.FC = () => {
         return 'border-success-500 bg-success-900/50';
     }
   };
-  
-  const user = authService.getStoredUser();
-  const maxLevelOrder = levelMap.length > 0 ? Math.max(...levelMap.map(l => l.order)) : 0;
   
   if (isLoading) {
     return (
