@@ -13,11 +13,13 @@ const quizService = {
   /**
    * Submit quiz answers
    */
-  submitQuiz: async (levelId: number, answers: Record<string, string>): Promise<QuizResult> => {
-    const response = await api.post<QuizResult>('/quiz/submit', {
+  submitQuiz: async (levelId: number, answers: Record<string, string>, startedAt?: string): Promise<QuizResult> => {
+    const payload: any = {
       level_id: levelId,
       answers,
-    });
+    };
+    if (startedAt) payload.started_at = startedAt;
+    const response = await api.post<QuizResult>('/quiz/submit', payload);
     return response.data;
   },
   

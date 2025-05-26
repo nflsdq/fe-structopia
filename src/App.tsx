@@ -28,6 +28,8 @@ const Leaderboard = lazy(() => import('./pages/leaderboard/Leaderboard'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const StudentList = lazy(() => import('./pages/admin/StudentList'));
 const StudentDetail = lazy(() => import('./pages/admin/StudentDetail'));
+import TestPage from './pages/test/TestPage';
+import TestResultPage from './pages/test/TestResultPage';
 
 const App: React.FC = () => {
   const location = useLocation();
@@ -66,6 +68,8 @@ const App: React.FC = () => {
                     <Route path="/leaderboard" element={<Leaderboard />} />
                     <Route path="/admin/students" element={<StudentList />} />
                     <Route path="/admin/students/:id" element={<StudentDetail />} />
+                    <Route path="/test/:type" element={<TestPage />} />
+                    <Route path="/test/result/:type" element={<TestResultPage />} />
                   </Route>
                 </Route>
                 

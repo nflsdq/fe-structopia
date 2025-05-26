@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Home, Map, Trophy, User } from 'lucide-react';
 import useAudio from '../../hooks/useAudio';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface MenuItem {
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
   const location = useLocation();
   const { playSound } = useAudio();
+  const { user } = useAuth();
   
   const menuItems: MenuItem[] = [
     { label: 'Dashboard', path: '/dashboard', icon: <Home size={20} /> },
@@ -25,6 +27,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
     { label: 'Leaderboard', path: '/leaderboard', icon: <Trophy size={20} /> },
     { label: 'Profil', path: '/profile', icon: <User size={20} /> },
   ];
+  
+  // Tambahkan menu admin jika user admin
+  if (user && user.role === 'admin') {
+    menuItems.push({ label: 'Progress Siswa', path: '/admin/students', icon: <Trophy size={20} /> });
+  }
   
   const sidebarVariants = {
     open: {

@@ -6,8 +6,9 @@ const progressService = {
    * Get user progress
    */
   getProgress: async (): Promise<Progress[]> => {
-    const response = await api.get<{ data: Progress[] }>('/progress');
-    return response.data.data;
+    const response = await api.get<{ data: any[] }>('/progress');
+    // Map level_id (snake_case) ke levelId (camelCase) agar konsisten dengan type Progress
+    return response.data.data.map(p => ({ ...p, levelId: p.level_id ?? p.levelId }));
   },
   
   /**

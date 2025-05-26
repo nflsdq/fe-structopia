@@ -36,6 +36,7 @@ const StudentDetail: React.FC = () => {
   const [userDetail, setUserDetail] = useState<UserDetail | null>(null);
   const [progress, setProgress] = useState<ProgressItem[]>([]);
   const [quizHistory, setQuizHistory] = useState<QuizHistoryItem[]>([]);
+  const [testHistory, setTestHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ const StudentDetail: React.FC = () => {
         setUserDetail(res.data.user);
         setProgress(res.data.progress_history.data || []);
         setQuizHistory(res.data.quiz_history.data || []);
+        setTestHistory(res.data.test_history || []);
       } catch (err: any) {
         setError('Gagal memuat detail siswa');
       } finally {
@@ -121,6 +123,32 @@ const StudentDetail: React.FC = () => {
                     <td className="py-2 px-4">{new Date(item.started_at).toLocaleString()}</td>
                     <td className="py-2 px-4">{new Date(item.finished_at).toLocaleString()}</td>
                     <td className="py-2 px-4">{item.duration}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <h2 className="text-xl font-semibold mt-8 mb-2">History Test (Pretest/Posttest)</h2>
+          <div className="overflow-x-auto mb-8">
+            <table className="min-w-full bg-neutral-900 rounded-lg">
+              <thead>
+                <tr>
+                  <th className="py-2 px-4">Tipe</th>
+                  <th className="py-2 px-4">Benar</th>
+                  <th className="py-2 px-4">Salah</th>
+                  <th className="py-2 px-4">Durasi (detik)</th>
+                  <th className="py-2 px-4">Tanggal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {testHistory.map((item) => (
+                  <tr key={item.id}>
+                    <td className="py-2 px-4">{item.type}</td>
+                    <td className="py-2 px-4">{item.correct_count}</td>
+                    <td className="py-2 px-4">{item.wrong_count}</td>
+                    <td className="py-2 px-4">{item.duration}</td>
+                    <td className="py-2 px-4">{new Date(item.created_at).toLocaleString()}</td>
                   </tr>
                 ))}
               </tbody>

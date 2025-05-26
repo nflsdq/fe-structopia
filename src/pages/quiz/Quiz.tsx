@@ -28,6 +28,7 @@ const Quiz: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [choiceKeyMaps, setChoiceKeyMaps] = useState<Record<string, string[]>>({});
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
   
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -64,6 +65,7 @@ const Quiz: React.FC = () => {
         });
         setChoiceKeyMaps(keyMap);
         setQuizzes(processedQuizzes);
+        setStartedAt(new Date());
       } catch (error) {
         console.error('Error fetching quizzes:', error);
         navigate('/levels');
@@ -109,7 +111,8 @@ const Quiz: React.FC = () => {
     
     setIsSubmitting(true);
     try {
-      const result = await quizService.submitQuiz(parseInt(levelId), answers);
+      const startedAtString = startedAt ? startedAt.toISOString() : new Date().toISOString();
+      const result = await quizService.submitQuiz(parseInt(levelId), answers, startedAtString);
       playSound(result.passed ? 'success' : 'error');
       navigate(`/quiz/result/${levelId}`, { state: { result } });
     } catch (error) {
@@ -118,7 +121,7 @@ const Quiz: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [levelId, answers, isSubmitting, navigate, playSound]);
+  }, [levelId, answers, isSubmitting, navigate, playSound, startedAt]);
 
   function handleNextQuestion() {
     if (currentIndex < quizzes.length - 1) {

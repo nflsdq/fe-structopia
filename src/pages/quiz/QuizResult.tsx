@@ -101,6 +101,15 @@ const QuizResult: React.FC = () => {
               </div>
               <div className="text-sm text-neutral-400">XP Diperoleh</div>
             </div>
+            
+            {typeof result.duration !== 'undefined' && (
+              <div className="game-card p-6 col-span-1 md:col-span-3">
+                <div className="text-2xl font-display font-bold text-white mb-1">
+                  Durasi: {result.duration} detik
+                </div>
+                <div className="text-sm text-neutral-400">Waktu pengerjaan</div>
+              </div>
+            )}
           </div>
           
           {/* Action buttons */}

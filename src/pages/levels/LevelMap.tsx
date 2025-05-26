@@ -5,11 +5,18 @@ import { Lock, CheckCircle, Play, AlertCircle } from 'lucide-react';
 import { useGame } from '../../contexts/GameContext';
 import { Level } from '../../types';
 import useAudio from '../../hooks/useAudio';
+import GameButton from '../../components/common/GameButton';
+import authService from '../../services/authService';
+import testService from '../../services/testService';
+import progressService from '../../services/progressService';
 
 const LevelMap: React.FC = () => {
   const { levels, loadLevels, isLoading } = useGame();
   const { playSound } = useAudio();
   const [levelMap, setLevelMap] = useState<Level[]>([]);
+  const [sudahPretest, setSudahPretest] = useState(false);
+  const [sudahPosttest, setSudahPosttest] = useState(false);
+  const [canDoPosttest, setCanDoPosttest] = useState(false);
   
   useEffect(() => {
     const initLevels = async () => {
@@ -26,6 +33,30 @@ const LevelMap: React.FC = () => {
       setLevelMap(sortedLevels);
     }
   }, [levels]);
+  
+  useEffect(() => {
+    const cekPretest = async () => {
+      try {
+        const history = await testService.getHistory();
+        setSudahPretest(history.some(h => h.type === 'pretest'));
+        setSudahPosttest(history.some(h => h.type === 'posttest'));
+      } catch {}
+    };
+    cekPretest();
+  }, []);
+  
+  useEffect(() => {
+    const cekPosttest = async () => {
+      try {
+        const progress = await progressService.getProgress();
+        const lastProgress = progress.find(p => p.level_id === 5 && p.status === 'completed');
+        setCanDoPosttest(!!lastProgress);
+      } catch {
+        setCanDoPosttest(false);
+      }
+    };
+    cekPosttest();
+  }, []);
   
   const handleLevelClick = (level: Level) => {
     if (level.status === 'locked') {
@@ -61,6 +92,9 @@ const LevelMap: React.FC = () => {
     }
   };
   
+  const user = authService.getStoredUser();
+  const maxLevelOrder = levelMap.length > 0 ? Math.max(...levelMap.map(l => l.order)) : 0;
+  
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -80,6 +114,19 @@ const LevelMap: React.FC = () => {
           Jelajahi level-level struktur data dalam petualangan ini. Selesaikan satu per satu untuk membuka level selanjutnya.
         </p>
       </header>
+      
+      {/* Pretest Card */}
+      {!sudahPretest && (
+        <div className="max-w-xl mx-auto mb-8">
+          <div className="game-card border-2 border-primary-500 bg-primary-900/50 p-6 flex flex-col items-center">
+            <h2 className="text-2xl font-display font-bold text-white mb-2">Pretest</h2>
+            <p className="text-neutral-300 mb-4 text-center">Kerjakan pretest untuk mengukur kemampuan awalmu sebelum memulai petualangan level.</p>
+            <Link to="/test/pretest">
+              <GameButton variant="primary" onClick={() => playSound('click')}>Mulai Pretest</GameButton>
+            </Link>
+          </div>
+        </div>
+      )}
       
       {/* Level Map Grid */}
       <div className="relative my-8 md:my-16">
@@ -156,6 +203,24 @@ const LevelMap: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Posttest Card */}
+      {!sudahPosttest && (
+        <div className="max-w-xl mx-auto mt-12">
+          <div className="game-card border-2 border-accent-500 bg-accent-900/50 p-6 flex flex-col items-center">
+            <h2 className="text-2xl font-display font-bold text-white mb-2">Posttest</h2>
+            <p className="text-neutral-300 mb-4 text-center">Kerjakan posttest untuk mengukur peningkatan kemampuanmu setelah menyelesaikan semua level.</p>
+            <Link to={canDoPosttest ? "/test/posttest" : "#"} tabIndex={canDoPosttest ? 0 : -1}>
+              <GameButton variant="accent" onClick={() => canDoPosttest && playSound('click')} disabled={!canDoPosttest}>
+                Mulai Posttest
+              </GameButton>
+            </Link>
+            {!canDoPosttest && (
+              <div className="text-sm text-error-400 mt-2 text-center">Selesaikan semua level terlebih dahulu untuk membuka posttest.</div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

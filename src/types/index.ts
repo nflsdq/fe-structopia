@@ -78,11 +78,12 @@ export interface QuizResult {
   passed: boolean;
   xp_gained: number;
   new_badges?: Badge[];
+  duration?: number;
 }
 
 export interface QuizHistory {
   id: number;
-  levelId: number;
+  level_id: number;
   score: number;
   total_questions: number;
   passed: boolean;
@@ -106,7 +107,7 @@ export interface Badge {
 export interface Progress {
   id: number;
   userId: number;
-  levelId: number;
+  level_id: number;
   status: 'not-started' | 'in-progress' | 'completed';
   completedAt?: string;
   level?: Level;
@@ -141,4 +142,22 @@ export interface CompleteMaterialResponse {
   message: string;
   xp_gained: number;
   new_badges: Badge[]; // Asumsi new_badges adalah array of Badge
+}
+
+// Test Types
+export interface TestQuestion {
+  id: number;
+  question: string;
+  choices: Record<string, string> | string[];
+}
+
+export interface TestHistory {
+  id: number;
+  user_id: number;
+  type: 'pretest' | 'posttest';
+  correct_count: number;
+  wrong_count: number;
+  duration: number;
+  created_at: string;
+  updated_at: string;
 }
