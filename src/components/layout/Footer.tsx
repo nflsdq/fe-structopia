@@ -31,18 +31,6 @@ const Footer: React.FC = () => {
           <div className="text-neutral-500 text-sm mb-4 md:mb-0">
             &copy; 2025 Structopia. All rights reserved.
           </div>
-          
-          <div className="flex space-x-4 text-sm">
-            <Link to="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              Syarat & Ketentuan
-            </Link>
-            <Link to="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              Kebijakan Privasi
-            </Link>
-            <Link to="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              Bantuan
-            </Link>
-          </div>
         </div>
       </div>
     </footer>
