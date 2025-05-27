@@ -6,7 +6,7 @@ const Footer: React.FC = () => {
     <footer className="bg-neutral-900 border-t border-neutral-800 py-6">
       <div className="container mx-auto px-0 md:px-12">
         <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0">
+          <div className="mx-4 md:mx-0">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
                 <svg width="20" height="20" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
