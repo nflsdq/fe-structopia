@@ -175,7 +175,7 @@ const StudentDetail: React.FC = () => {
               </thead>
               <tbody>
                 {quizHistory.map((item) => (
-                  <tr key={item.id} className="border-b border-neutral-800 hover:bg-primary-900/30 transition-all">
+                  <tr key={item.id} className="border-b border-neutral-800 text-start hover:bg-primary-900/30 transition-all">
                     <td className="py-2 px-4">{item.level?.name || '-'}</td>
                     <td className="py-2 px-4">{item.score}</td>
                     <td className="py-2 px-4">{item.passed ? 'Ya' : 'Tidak'}</td>

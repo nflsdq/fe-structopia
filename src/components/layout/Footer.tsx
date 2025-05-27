@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Github, Twitter, Instagram } from 'lucide-react';
 
 const Footer: React.FC = () => {
   return (
@@ -25,18 +24,6 @@ const Footer: React.FC = () => {
             <p className="text-neutral-500 text-sm mt-2">
               Platform pembelajaran struktur data berbasis gamifikasi
             </p>
-          </div>
-          
-          <div className="flex space-x-6">
-            <a href="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              <Github size={20} />
-            </a>
-            <a href="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              <Twitter size={20} />
-            </a>
-            <a href="#" className="text-neutral-400 hover:text-primary-400 transition-colors">
-              <Instagram size={20} />
-            </a>
           </div>
         </div>
         
